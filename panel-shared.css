@@ -1,0 +1,167 @@
+:root {
+  --ink: #1c1b1a;
+  --muted: #6b6560;
+  --line: #e4dfd8;
+  --surface: #ffffff;
+  --bg: #ffffff;
+  --danger: #b4322e;
+  --danger-soft: #f6e4e3;
+  --accent: #2f6f5e;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+}
+
+.bar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+.dot.ok { background: var(--accent); }
+.dot.flagged { background: var(--danger); }
+
+.count-pill {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.count-pill.zero {
+  background: var(--line);
+  color: var(--muted);
+}
+
+.icon-btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+}
+.icon-btn:hover { background: var(--bg); }
+
+.text-btn {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+}
+.text-btn:hover { text-decoration: underline; }
+
+.collapsed-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+main { padding: 8px 12px 16px; }
+
+.empty-state {
+  padding: 32px 8px;
+  text-align: center;
+  color: var(--muted);
+}
+.empty-state p { margin: 4px 0; }
+.empty-state .muted { font-size: 12px; }
+
+.invoice-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invoice-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.invoice-row:hover {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.invoice-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.invoice-contact {
+  font-weight: 600;
+}
+
+.invoice-amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.invoice-row-bottom {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.age-badge {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.last-checked {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}

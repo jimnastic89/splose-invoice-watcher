@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Splose Invoice Watcher — Settings</title>
+  <link rel="stylesheet" href="panel-shared.css" />
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>Splose Invoice Watcher</h1>
+    <p class="muted">Runs quietly in the background, checking for overdue invoices via the Splose API.</p>
+
+    <form id="settingsForm">
+      <section>
+        <h2>Connection</h2>
+        <label>
+          Splose subdomain
+          <div class="input-row">
+            <span class="prefix">https://</span>
+            <input type="text" id="subdomain" placeholder="yourbusiness" required />
+            <span class="suffix">.splose.com</span>
+          </div>
+        </label>
+
+        <label>
+          API key
+          <input type="password" id="apiKey" placeholder="Paste your Splose API key" autocomplete="off" />
+          <span class="hint">Stored only in this browser, isolated to this extension. See note below.</span>
+        </label>
+      </section>
+
+      <section>
+        <h2>What counts as overdue</h2>
+        <label>
+          Flag invoices this many days past due
+          <input type="number" id="ageThresholdDays" min="0" max="365" />
+        </label>
+        <label>
+          Escalate tone/urgency after this many days
+          <input type="number" id="escalateAfterDays" min="0" max="365" />
+        </label>
+      </section>
+
+      <section>
+        <h2>Checking &amp; reminders</h2>
+        <label>
+          Check for updates every
+          <select id="pollIntervalMinutes">
+            <option value="15">15 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value="60">1 hour</option>
+            <option value="120">2 hours</option>
+          </select>
+        </label>
+        <label>
+          Remind again after
+          <select id="notifyCadenceHours">
+            <option value="24">1 day</option>
+            <option value="48">2 days</option>
+            <option value="72">3 days</option>
+            <option value="168">1 week</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2>Role <span class="badge-soon">for future clinician installs</span></h2>
+        <label>
+          This install is for
+          <select id="role">
+            <option value="reception">Reception / admin (sees all invoices)</option>
+            <option value="clinician">Clinician (scoped to own patients — coming soon)</option>
+          </select>
+        </label>
+      </section>
+
+      <div class="actions">
+        <button type="submit" id="saveBtn">Save settings</button>
+        <span id="saveStatus" class="save-status" role="status"></span>
+      </div>
+    </form>
+
+    <details class="security-note">
+      <summary>How is my API key stored?</summary>
+      <p>
+        Your key is kept in this extension's own private browser storage.
+        It isn't visible to Splose's web pages, other extensions, or synced
+        anywhere — it stays on this machine. Browser extensions don't have
+        access to the operating system's encrypted keychain, so this is the
+        strongest protection available within a plain Chrome extension. If a
+        centrally-managed, revocable-key approach becomes important later
+        (e.g. many clinician installs), that's a sign to introduce a small
+        backing service rather than relying purely on browser storage.
+      </p>
+    </details>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

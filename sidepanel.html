@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Splose Invoice Watcher</title>
+  <link rel="stylesheet" href="panel-shared.css" />
+</head>
+<body>
+  <header class="bar">
+    <div class="bar-title">
+      <span class="dot" id="statusDot"></span>
+      <span>Unpaid invoices</span>
+      <span class="count-pill" id="countPill">0</span>
+    </div>
+    <button id="collapseBtn" class="icon-btn" title="Minimise">–</button>
+  </header>
+
+  <div id="collapsedBar" class="collapsed-bar" hidden>
+    <span id="collapsedText">0 unpaid invoices</span>
+    <button id="expandBtn" class="text-btn">Expand</button>
+  </div>
+
+  <main id="content">
+    <div id="emptyState" class="empty-state" hidden>
+      <p>No overdue invoices right now.</p>
+      <p class="muted">Nice work — this panel will fill in as soon as something crosses the age threshold.</p>
+    </div>
+
+    <div id="unconfiguredState" class="empty-state" hidden>
+      <p>Not set up yet.</p>
+      <p class="muted">Add your Splose API key and subdomain in the extension options to start tracking.</p>
+      <button id="openOptionsBtn" class="text-btn">Open settings</button>
+    </div>
+
+    <ul id="invoiceList" class="invoice-list"></ul>
+
+    <p class="last-checked" id="lastChecked"></p>
+  </main>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>
