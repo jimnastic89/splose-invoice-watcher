@@ -6,8 +6,8 @@ const statusDot = document.getElementById("statusDot");
 const emptyState = document.getElementById("emptyState");
 const unconfiguredState = document.getElementById("unconfiguredState");
 const lastChecked = document.getElementById("lastChecked");
-const collapseBtn = document.getElementById("collapseBtn");
-const expandBtn = document.getElementById("expandBtn");
+const collapseBtn = document.getElementById("toggleBtn");
+const collapseIcon = document.getElementById("toggleIcon");
 const collapsedBar = document.getElementById("collapsedBar");
 const collapsedText = document.getElementById("collapsedText");
 const content = document.getElementById("content");
@@ -97,16 +97,15 @@ async function openInvoice(url) {
 async function applyCollapsed(collapsed) {
   content.hidden = collapsed;
   collapsedBar.hidden = !collapsed;
-  collapseBtn.hidden = collapsed;
+  collapseIcon.textContent = collapsed ? "▸" : "▾";
+  collapseBtn.title = collapsed ? "Expand" : "Minimise";
 }
 
 collapseBtn.addEventListener("click", async () => {
-  await chrome.storage.local.set({ panelCollapsed: true });
-  applyCollapsed(true);
-});
-expandBtn.addEventListener("click", async () => {
-  await chrome.storage.local.set({ panelCollapsed: false });
-  applyCollapsed(false);
+  const { panelCollapsed } = await chrome.storage.local.get("panelCollapsed");
+  const next = !panelCollapsed;
+  await chrome.storage.local.set({ panelCollapsed: next });
+  applyCollapsed(next);
 });
 
 (async () => {

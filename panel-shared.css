@@ -3,7 +3,7 @@
   --muted: #6b6560;
   --line: #e4dfd8;
   --surface: #ffffff;
-  --bg: #ffffff;
+  --bg: #faf8f5;
   --danger: #b4322e;
   --danger-soft: #f6e4e3;
   --accent: #2f6f5e;
@@ -67,12 +67,16 @@ body {
   border-radius: 6px;
   width: 26px;
   height: 26px;
-  font-size: 16px;
+  font-size: 13px;
   line-height: 1;
   cursor: pointer;
   color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .icon-btn:hover { background: var(--bg); }
+.icon-btn span { transition: transform 0.15s ease; }
 
 .text-btn {
   border: none;
