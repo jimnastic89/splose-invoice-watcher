@@ -7,10 +7,22 @@
   --danger: #b4322e;
   --danger-soft: #f6e4e3;
   --accent: #2f6f5e;
+  --purple: #7c5cfa;
   --radius: 10px;
 }
 
 * { box-sizing: border-box; }
+
+/* The `hidden` attribute only works if nothing else sets `display` on the
+   same element with equal-or-higher priority — and plenty of elements
+   here do (`.collapsed-bar`, `.waitlist-group-list`, etc. all set
+   `display: flex`). Without this, toggling `.hidden = true/false` in JS
+   silently does nothing on any element that also has a display rule.
+   This one override fixes it globally instead of needing a `[hidden]`
+   escape-hatch rule next to every single class that sets `display`. */
+[hidden] {
+  display: none !important;
+}
 
 body {
   margin: 0;
@@ -98,7 +110,7 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
-main { padding: 8px 12px 16px; }
+#unconfiguredState { padding: 32px 12px; }
 
 .empty-state {
   padding: 32px 8px;
@@ -161,6 +173,136 @@ main { padding: 8px 12px 16px; }
 .age-badge {
   color: var(--danger);
   font-weight: 600;
+}
+
+.panel-section {
+  border-bottom: 1px solid var(--line);
+}
+.panel-section .bar {
+  position: static;
+}
+.section-content {
+  padding: 8px 12px 16px;
+}
+
+.waitlist-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.waitlist-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 4px 2px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.waitlist-group-header:hover .waitlist-group-title { color: var(--ink); }
+
+.waitlist-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.waitlist-group-chevron {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.waitlist-group-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.waitlist-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.waitlist-row:hover {
+  border-color: var(--accent);
+  background: #eaf1ee;
+}
+
+.waitlist-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.waitlist-patient {
+  font-weight: 600;
+}
+
+.waitlist-waiting-since {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.availability-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.availability-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.day-cell {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--line);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.day-cell.active {
+  background: var(--purple);
+  color: #ffffff;
+}
+
+.time-cell {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--line);
+  flex-shrink: 0;
+}
+.time-cell.active {
+  color: var(--ink);
 }
 
 .last-checked {

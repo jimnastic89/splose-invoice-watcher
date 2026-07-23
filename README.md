@@ -47,6 +47,36 @@ patient's name might not show correctly until the next rebuild — reasonable
 given names change far less often than invoice status, and it keeps the
 15-minute poll cycle to a single, small, status-filtered `/invoices` call.
 
+## The waitlist section
+
+Added the same way as invoices, sharing the same poll cycle and API key:
+
+- `/waitlists?isActive=true` is fetched each poll (same cursor-pagination
+  approach as invoices — see `fetchActiveWaitlist` in `api.js`).
+- Waitlist entries only carry `patientId` and `practitionerId`, no names —
+  resolved through the same shared cache in `names.js` used for invoice
+  contact names, now extended to also cache `/practitioners`. A poll that
+  touches both invoices and the waitlist only rebuilds that cache once.
+- The side panel's collapsed count is **distinct patients**, not raw
+  waitlist entries — a patient waiting on more than one
+  practitioner/service counts once for the headline number, but still
+  appears in each relevant practitioner group when expanded. Worth
+  flagging as a judgment call in case "total people" was meant more
+  literally as entry count.
+- Expanded view groups entries by practitioner name (alphabetical,
+  "Unassigned" — no `practitionerId` set — sorted last).
+- Each row links to `https://<subdomain>.splose.com/patients/<patientId>/details`
+  using the same `subdomain` setting as the invoice links.
+- No notifications or diffing for the waitlist — it's a live snapshot on
+  every poll, not something that needs acknowledging like a paid invoice.
+- The API doesn't expose an actual "date added to waitlist" field (despite
+  accepting `dateAddedGt`/`dateAddedLt` as query filters) — `createdAt` is
+  used as a stand-in for "waiting since" in the UI.
+
+Both sections minimise/expand independently and remember their own
+collapsed state (`invoicesCollapsed` / `waitlistCollapsed` in
+`chrome.storage.local`).
+
 ## Loading it for development
 
 1. `chrome://extensions` → enable **Developer mode** (top right).
@@ -64,7 +94,8 @@ refresh icon on the extension's card to reload it.
 
 - **`background.js`** — the service worker. Registers a `declarativeNetRequest`
   rule to set the `User-Agent` header (see note below), runs the
-  `chrome.alarms` poll loop, does the diff between polls, drives the badge
+  `chrome.alarms` poll loop (invoices and waitlist, back-to-back each
+  tick), does the diff between polls for invoices, drives the badge
   count and notifications, and toggles the side panel on/off per tab based
   on whether it's a `*.splose.com` URL.
 - **`api.js`** — talks to the Splose API. Sequential cursor pagination, one

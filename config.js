@@ -66,3 +66,7 @@ export async function setConfig(partial) {
 export function invoiceUrl(subdomain, invoiceId) {
   return `https://${subdomain}.splose.com/invoices/${invoiceId}/view`;
 }
+
+export function patientDetailsUrl(subdomain, patientId) {
+  return `https://${subdomain}.splose.com/patients/${patientId}/details`;
+}

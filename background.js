@@ -1,6 +1,6 @@
-import { getConfig, invoiceUrl } from "./config.js";
-import { fetchAllUnpaidInvoices, RateLimitError } from "./api.js";
-import { attachContactNames } from "./names.js";
+import { getConfig, invoiceUrl, patientDetailsUrl } from "./config.js";
+import { fetchAllUnpaidInvoices, fetchActiveWaitlist, RateLimitError } from "./api.js";
+import { attachContactNames, attachWaitlistNames } from "./names.js";
 
 const ALARM_NAME = "splose-poll";
 const USER_AGENT_RULE_ID = 1;
@@ -57,7 +57,7 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === ALARM_NAME) pollInvoices();
+  if (alarm.name === ALARM_NAME) pollAll();
 });
 
 // Re-arm the alarm if settings change (e.g. user edits poll interval in options).
@@ -112,7 +112,14 @@ function ageInDays(invoice) {
 
 let pollInFlight = false;
 
-export async function pollInvoices() {
+/**
+ * Runs both poll cycles back-to-back on the same alarm tick. Sequential,
+ * not parallel — same reasoning as the sequential pagination in api.js:
+ * gentler, more predictable traffic against Splose's rate limit. Each
+ * cycle is wrapped so a failure in one (e.g. a transient invoices error)
+ * doesn't prevent the other from running.
+ */
+export async function pollAll() {
   if (pollInFlight) return; // don't overlap polls if one is slow
   pollInFlight = true;
   try {
@@ -121,32 +128,56 @@ export async function pollInvoices() {
       await chrome.action.setBadgeText({ text: "" });
       return; // not configured yet — options page will prompt the user
     }
-
-    let invoices;
-    try {
-      invoices = await fetchAllUnpaidInvoices(config);
-    } catch (err) {
-      if (err instanceof RateLimitError) {
-        console.warn("Splose rate limit hit — backing off this cycle.");
-        return;
-      }
-      console.error("Splose poll failed:", err);
-      return;
-    }
-
-    let flagged = invoices.filter((inv) => ageInDays(inv) >= config.ageThresholdDays);
-    // Future scoping hook: if config.role === "clinician", filter further by
-    // config.scopeContactIds here before diffing. Left as a pass-through for now.
-
-    flagged = await attachContactNames(flagged, config);
-
-    await diffAndUpdate(flagged, config);
+    await pollInvoices(config);
+    await pollWaitlist(config);
   } finally {
     pollInFlight = false;
   }
 }
 
-async function diffAndUpdate(flagged, config) {
+async function pollInvoices(config) {
+  let invoices;
+  try {
+    invoices = await fetchAllUnpaidInvoices(config);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      console.warn("Splose rate limit hit fetching invoices — backing off this cycle.");
+      return;
+    }
+    console.error("Splose invoice poll failed:", err);
+    return;
+  }
+
+  let flagged = invoices.filter((inv) => ageInDays(inv) >= config.ageThresholdDays);
+  // Future scoping hook: if config.role === "clinician", filter further by
+  // config.scopeContactIds here before diffing. Left as a pass-through for now.
+
+  flagged = await attachContactNames(flagged, config);
+
+  await diffAndUpdateInvoices(flagged, config);
+}
+
+async function pollWaitlist(config) {
+  let items;
+  try {
+    items = await fetchActiveWaitlist(config);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      console.warn("Splose rate limit hit fetching waitlist — backing off this cycle.");
+      return;
+    }
+    console.error("Splose waitlist poll failed:", err);
+    return;
+  }
+
+  // Future scoping hook: same clinician-scoping filter point as invoices.
+  items = await attachWaitlistNames(items, config);
+  items = items.map((item) => ({ ...item, url: patientDetailsUrl(config.subdomain, item.patientId) }));
+
+  await chrome.storage.local.set({ waitlistItems: items, waitlistPolledAt: Date.now() });
+}
+
+async function diffAndUpdateInvoices(flagged, config) {
   const { trackedInvoices = {} } = await chrome.storage.local.get("trackedInvoices");
   const next = { ...trackedInvoices };
   const now = Date.now();
@@ -245,7 +276,7 @@ chrome.notifications.onClicked.addListener(async (notificationId) => {
 // after the user saves their API key for the first time).
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "POLL_NOW") {
-    pollInvoices().then(() => sendResponse({ ok: true }));
+    pollAll().then(() => sendResponse({ ok: true }));
     return true; // keep the message channel open for the async response
   }
 });

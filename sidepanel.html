@@ -6,37 +6,67 @@
   <link rel="stylesheet" href="panel-shared.css" />
 </head>
 <body>
-  <header class="bar">
-    <div class="bar-title">
-      <span class="dot" id="statusDot"></span>
-      <span>Unpaid invoices</span>
-      <span class="count-pill" id="countPill">0</span>
-    </div>
-    <button id="toggleBtn" class="icon-btn" title="Minimise">
-      <span id="toggleIcon">▾</span>
-    </button>
-  </header>
-
-  <div id="collapsedBar" class="collapsed-bar" hidden>
-    <span id="collapsedText">0 unpaid invoices</span>
+  <div id="unconfiguredState" class="empty-state" hidden>
+    <p>Not set up yet.</p>
+    <p class="muted">Add your Splose API key and subdomain in the extension options to start tracking.</p>
+    <button id="openOptionsBtn" class="text-btn">Open settings</button>
   </div>
 
-  <main id="content">
-    <div id="emptyState" class="empty-state" hidden>
-      <p>No overdue invoices right now.</p>
-      <p class="muted">Nice work — this panel will fill in as soon as something crosses the age threshold.</p>
-    </div>
+  <div id="mainContent">
+    <!-- ===================== Invoices section ===================== -->
+    <section class="panel-section" id="invoicesSection">
+      <header class="bar">
+        <div class="bar-title">
+          <span class="dot" id="invoicesDot"></span>
+          <span>Unpaid invoices</span>
+          <span class="count-pill" id="invoicesCountPill">0</span>
+        </div>
+        <button id="invoicesToggleBtn" class="icon-btn" title="Minimise">
+          <span id="invoicesToggleIcon">▾</span>
+        </button>
+      </header>
 
-    <div id="unconfiguredState" class="empty-state" hidden>
-      <p>Not set up yet.</p>
-      <p class="muted">Add your Splose API key and subdomain in the extension options to start tracking.</p>
-      <button id="openOptionsBtn" class="text-btn">Open settings</button>
-    </div>
+      <div id="invoicesCollapsedBar" class="collapsed-bar" hidden>
+        <span id="invoicesCollapsedText">0 unpaid invoices</span>
+      </div>
 
-    <ul id="invoiceList" class="invoice-list"></ul>
+      <div id="invoicesContent" class="section-content">
+        <div id="invoicesEmpty" class="empty-state" hidden>
+          <p>No overdue invoices right now.</p>
+          <p class="muted">Nice work — this section will fill in as soon as something crosses the age threshold.</p>
+        </div>
+        <ul id="invoiceList" class="invoice-list"></ul>
+        <p class="last-checked" id="invoicesLastChecked"></p>
+      </div>
+    </section>
 
-    <p class="last-checked" id="lastChecked"></p>
-  </main>
+    <!-- ===================== Waitlist section ===================== -->
+    <section class="panel-section" id="waitlistSection">
+      <header class="bar">
+        <div class="bar-title">
+          <span class="dot" id="waitlistDot"></span>
+          <span>Waitlist</span>
+          <span class="count-pill" id="waitlistCountPill">0</span>
+        </div>
+        <button id="waitlistToggleBtn" class="icon-btn" title="Minimise">
+          <span id="waitlistToggleIcon">▾</span>
+        </button>
+      </header>
+
+      <div id="waitlistCollapsedBar" class="collapsed-bar" hidden>
+        <span id="waitlistCollapsedText">0 people waiting</span>
+      </div>
+
+      <div id="waitlistContent" class="section-content">
+        <div id="waitlistEmpty" class="empty-state" hidden>
+          <p>Nobody on the waitlist.</p>
+          <p class="muted">New waitlist entries will show up here, grouped by practitioner.</p>
+        </div>
+        <div id="waitlistGroups" class="waitlist-groups"></div>
+        <p class="last-checked" id="waitlistLastChecked"></p>
+      </div>
+    </section>
+  </div>
 
   <script type="module" src="sidepanel.js"></script>
 </body>

@@ -129,10 +129,11 @@ export async function fetchAllUnpaidInvoices({ apiKey }) {
 }
 
 /**
- * Fetches every page of /patients or /contacts, same cursor-pagination
- * approach. Exported so names.js can build its id -> display-name cache.
+ * Fetches every page of a cursor-paginated list endpoint (e.g. /patients,
+ * /contacts, /practitioners, /waitlists), optionally with extra static
+ * query params (e.g. { isActive: "true" }) applied to every page.
  */
-export async function fetchAllPages(path, { apiKey }) {
+export async function fetchAllPages(path, { apiKey }, extraParams = {}) {
   const all = [];
   let cursor = undefined;
   let iterations = 0;
@@ -140,7 +141,10 @@ export async function fetchAllPages(path, { apiKey }) {
 
   while (iterations < maxIterations) {
     iterations += 1;
-    const body = await apiGet(path, { apiKey }, { id_gt: cursor });
+    const body = await apiGet(path, { apiKey }, {
+      ...extraParams,
+      id_gt: cursor,
+    });
     const items = body.data ?? [];
     if (items.length === 0) break;
     all.push(...items);
@@ -148,4 +152,29 @@ export async function fetchAllPages(path, { apiKey }) {
   }
 
   return all;
+}
+
+function normalizeWaitlistItem(raw) {
+  return {
+    id: String(raw.id),
+    patientId: raw.patientId != null ? String(raw.patientId) : null,
+    practitionerId: raw.practitionerId != null ? String(raw.practitionerId) : null,
+    // No explicit "date added" field in the response schema (only
+    // createdAt/updatedAt), even though the API accepts dateAddedGt/Lt as
+    // query filters — using createdAt as a stand-in for "waiting since".
+    waitingSince: raw.createdAt ? new Date(raw.createdAt).toISOString() : null,
+    // Full day names ("Monday".."Sunday") and a subset of
+    // "morning"/"afternoon"/"evening" — both nullable/absent if the
+    // patient has no preference set.
+    preferredDays: Array.isArray(raw.preferredDays) ? raw.preferredDays : [],
+    preferredTime: Array.isArray(raw.preferredTime) ? raw.preferredTime : [],
+  };
+}
+
+/**
+ * Fetches every currently-active (non-archived) waitlist entry.
+ */
+export async function fetchActiveWaitlist({ apiKey }) {
+  const raw = await fetchAllPages("/waitlists", { apiKey }, { isActive: "true" });
+  return raw.map(normalizeWaitlistItem);
 }
