@@ -50,6 +50,7 @@ async function ensureAlarm() {
 chrome.runtime.onInstalled.addListener(() => {
   ensureUserAgentRule();
   ensureAlarm();
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error) => console.error(error));
 });
 chrome.runtime.onStartup.addListener(() => {
   ensureUserAgentRule();

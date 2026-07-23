@@ -159,6 +159,7 @@ function normalizeWaitlistItem(raw) {
     id: String(raw.id),
     patientId: raw.patientId != null ? String(raw.patientId) : null,
     practitionerId: raw.practitionerId != null ? String(raw.practitionerId) : null,
+    archived: raw.archived === true,
     // No explicit "date added" field in the response schema (only
     // createdAt/updatedAt), even though the API accepts dateAddedGt/Lt as
     // query filters — using createdAt as a stand-in for "waiting since".
